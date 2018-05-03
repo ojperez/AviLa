@@ -30,10 +30,8 @@ if (_LOCAL)
     define('_BASE_URL','http://localhost/avila/');
     define('_DB_HOST', 'localhost');
     define('_DB_NAME', 'avila');
-    define('_DB_USER', 'root');
-    define('_DB_PASS', 'acn21!');
-//    define('_DB_USER', 'avila');
-//    define('_DB_PASS', '');
+    define('_DB_USER', 'avila');
+    define('_DB_PASS', '');
 }
 else
 {
