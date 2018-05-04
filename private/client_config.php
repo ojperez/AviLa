@@ -30,8 +30,9 @@ if (_LOCAL)
     define('_BASE_URL','http://localhost/avila/');
     define('_DB_HOST', 'localhost');
     define('_DB_NAME', 'avila');
-    define('_DB_USER', 'avila');
-    define('_DB_PASS', '');
+    require_once 'git-ignored-file-with-real-credentials.php';      
+//    define('_DB_USER', '');
+//    define('_DB_PASS', '');
 }
 else
 {
@@ -57,7 +58,11 @@ $_menu =
         'User\'s List' => ['c' => 'users', 'a' => '_list'],
         'Roles' => ['c' => 'roles', 'a' => '_list']
     ], 'c' => '', 'a' => '', 'i'=>'users'],   
-   /* 'Admin' => ['c' => 'admin', 'a' => 'dashboard', 'i' => 'key'] */
+    'Admin' => ['submenu'=>
+    [
+        'Settings' => ['c' => 'admin', 'a' => 'settings'],
+    ], 'c' => 'admin', 'a' => 'dashboard', 'i' => 'key'],   
+        
 ]; 
 
         

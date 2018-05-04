@@ -62,8 +62,23 @@ class DBConnection
         $result = mysqli_query($this->link, $query);   
         if (_DEBUG&&(!$result))
         {
-            add_alert ('Query failed: '.var_export($query, true).' | '.var_export(debug_backtrace(), true), 'danger');
+            add_alert ('Query failed: '.var_export($query, true).' <br> '.mysqli_error ($this->link).' <br> '.var_export(debug_backtrace(), true), 'danger');
             
+        }
+        return $result;       
+    }
+    function multi_query($query)
+    {    
+        
+        $this->queryCnt+=substr($query,-1) == ';'?substr_count($query, ';'):substr_count($query, ';')+1;        
+        $result = mysqli_multi_query($this->link, $query);   
+        if (_DEBUG&&(!$result))
+        {
+            add_alert ('Query failed: '.var_export($query, true).' <br> '.mysqli_error ($this->link).' <br> '.var_export(debug_backtrace(), true), 'danger');
+        }
+        while($this->link->more_results()){
+            $this->link->next_result();
+            $this->link->use_result();
         }
         return $result;       
     }

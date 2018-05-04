@@ -24,4 +24,4 @@ $controllers = array
     'login' => array('actions'=>array('login', 'logout'), 'controller'=>'LoginController'), //Fake controller, login action is catched before this point   
 );
 if (user_can('admin'))
-    $controllers['admin'] = array( 'actions' => ['dashboard'], 'controller'=>'AdminController');
+    $controllers['admin'] = array( 'actions' => ['settings', 'dashboard'], 'controller'=>'AdminController');

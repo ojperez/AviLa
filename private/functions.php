@@ -155,6 +155,10 @@ function has_component($component)
 /**
  * Template Functions
  */
+function __($text)
+{
+    return $text;
+}
 function assets_path($file='')
 {
     if (!defined('_VIEW_ASSETS_PATH'))
@@ -210,6 +214,10 @@ function maybe_unserialize( $original ) {
 	if ( is_serialized( $original ) ) // don't attempt to unserialize data that wasn't serialized going in
 		return @unserialize( $original );
 	return $original;
+}
+function maybe_serialize( $original )
+{
+    return (is_array($original) || is_object($original))?serialize($original):$original;
 }
 
 /**
