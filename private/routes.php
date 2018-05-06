@@ -11,6 +11,7 @@
  * Se incluye en layout.php
  */
 //var_dump($controllers);
+global $controllers;
 $controllers = apply_filters('_controllers', $controllers);
 if (array_key_exists($controller, $controllers)) 
 {

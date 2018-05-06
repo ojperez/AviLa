@@ -48,6 +48,37 @@ class AdminController extends _Controller
             
         }
     }
+    public function modules($context = false)
+    {
+        if ($context !== false)
+        {
+            foreach($context as $name => $var)
+                $$name = $var;
+        }
+        
+        $page_title=__('Módulos');
+        $page_subtitle=__('Activar y Desactivar Módulos');
+        
+        load_model($this->model);
+        
+        $postResult = array('stop'=>false, 'msgs'=>array()); //call_user_func(array($this->model, 'postHandler'), $_POST);
+        
+        if (!$postResult['stop'])
+        {
+            $items=call_user_func(array($this->model, 'getAvailableModules'));
+            
+            if (count($postResult['msgs'])>0)
+                foreach($postResult['msgs'] as $msg)
+                    add_alert($msg, 'danger');
+            $model = $this->model;
+            require_once(_VIEWS.'parts/_page_header.php');
+            if (file_exists(_VIEWS.'admin/modules.php'))
+                require_once(_VIEWS.'admin/modules.php');
+            else
+                error_page ('Template error: Missing admin/modules view.');
+            
+        }
+    }
     
     
 

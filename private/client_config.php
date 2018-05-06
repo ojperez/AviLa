@@ -60,9 +60,10 @@ $_menu =
     ], 'c' => '', 'a' => '', 'i'=>'users'],   
     'Admin' => ['submenu'=>
     [
+        'Modules' => ['c' => 'admin', 'a' => 'modules'],
         'Settings' => ['c' => 'admin', 'a' => 'settings'],
     ], 'c' => 'admin', 'a' => 'dashboard', 'i' => 'key'],   
         
 ]; 
 
-        
+

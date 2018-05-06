@@ -23,8 +23,21 @@ function actionCall($controller, $action)
         error_page ('Unknown controller class.');
         $do=false;
     }
-    if (file_exists(ABSPATH.'controllers/' . $controller . '_controller.php'))
-        require_once(ABSPATH.'controllers/' . $controller . '_controller.php');
+//    if (file_exists(ABSPATH.'controllers/' . $controller . '_controller.php'))
+//        require_once(ABSPATH.'controllers/' . $controller . '_controller.php');
+    $controller_path = $controllers[$controller]['controller'];
+    if (strpos($controller_path, '/') === false)
+    {
+        $instanciable = $controller_path;
+        $controller_path = 'controllers/'.$controller;
+    } else
+    {
+        $path_bits = explode('/', $controller_path);
+        $instanciable = end($path_bits);
+    }
+//    var_dump(ABSPATH.$controller_path. '_controller.php'); die;
+    if (file_exists(ABSPATH.$controller_path. '_controller.php'))
+        require_once(ABSPATH.$controller_path . '_controller.php');
     else
     {
         error_page ('Missing controller class.');
@@ -32,7 +45,8 @@ function actionCall($controller, $action)
     }
     if ($do)
     {
-        $c = new $controllers[$controller]['controller']();
+//        $c = new $controllers[$controller]['controller']();
+        $c = new $instanciable();
         $c->{ $action }();
     }
 }
@@ -51,11 +65,63 @@ function get_main_menu()
     global $_menu;
     return apply_filters('_main_menu', $_menu);
 }
+
+function is_model_loaded($model)
+{
+    global $_loaded_models;
+    return (is_array($_loaded_models) && isset($_loaded_models[$model]));
+}
 /*Funcion para cargar los modelos*/
+function add_model($model, $path='', $force = false)
+{
+    global $models;
+     if (($force) || (!isset($models[$model])))
+        return ($models[$model] = $path);
+    else 
+    {
+        if (!_PRODUCTION)
+            add_alert (__('Error, modelo ya existe: ').'<b>'.$model.'</b>', 'danger');
+        return false;
+    }    
+}
+function remove_model($model)
+{
+    global $models;
+    if (isset($models[$model]))
+    {
+        if (is_model_loaded($model))
+        {
+            add_alert( __('Error, no se puede eliminar un modelo que ya se ha cargado: ').'<b>'.$model.'</b>', 'danger');
+            return false;
+        }
+        unset($models[$model]);
+        return true;
+    }
+    return false;
+}
 function load_model($model)
 {
-    if (file_exists(ABSPATH.'models/'.$model.'.php'))
-            require_once ABSPATH.'models/'.$model.'.php';
+    global $models;
+    global $_loaded_models;
+    
+    if (is_model_loaded($model))
+        return;
+    
+    if (isset($models[$model]))
+    {
+        if (trim($models[$model]) == '')
+            $path = _MODELS;
+        else
+            $path = rtrim($models[$model], '/').'/';
+    }
+    
+    if (file_exists($path.$model.'.php'))
+    {
+            require_once $path.$model.'.php';
+            if (method_exists($model, '_init'))
+                call_user_func(array($model, '_init'));
+            $_loaded_models[$model] = true;
+    }
     else
         throw new Exception ('Error, model <b>'.$model.'</b> not found.');
 }
@@ -86,6 +152,56 @@ function check_server_requirements()
     }
 
 }
+/**
+ * Controller functions
+ */
+function crud_actions()
+{
+    return ['_list', 'edit', '_new', 'delete'];
+}
+function add_controller($handle, $controller, $force = false)
+{
+    global $controllers;
+    if (($force) || (!isset($controllers[$handle])))
+        return ($controllers[$handle] = $controller);
+    else 
+    {
+        if (!_PRODUCTION)
+            add_alert (__('Error, controlador ya existe: ').'<b>'.$handle.'</b>', 'danger');
+        return false;
+    }    
+}
+function remove_controller($handle)
+{
+    global $controllers;
+    if (isset($controllers[$handle]))
+    {
+        unset($controllers[$handle]);
+        return true;
+    }
+    return false;
+}
+/*
+ * ****************************************************************************
+ */
+/**
+ * Settings functions
+ */
+
+//phpinfo(); die;
+
+function get_setting($setting, $default = '')
+{
+    return Admin::getSetting($setting, $default);
+}
+function update_setting($setting, $value)
+{
+    return Admin::setSetting($setting, $value);
+}
+/*
+ * ****************************************************************************
+ */
+
 /*
  * Alerts
  * Maneja las alertas al usuario
@@ -137,13 +253,7 @@ function has_alerts()
 /**
  * Components
  */
-function has_component($component)
-{
-    global $components;
-    
-    return (isset($components[$component])&&is_array($components[$component])&&
-            isset($components[$component]['active'])&&$components[$component]['active']);    
-}
+
 /*
  * ****************************************************************************
  */
@@ -157,7 +267,7 @@ function has_component($component)
  */
 function __($text)
 {
-    return $text;
+    return apply_filters('__(', $text);
 }
 function assets_path($file='')
 {

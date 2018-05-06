@@ -51,5 +51,5 @@ if (_REQUIRES_SESSION&&!is_user_logged_in())
 {   
     require_once(_VIEWS.'layout.php');
 }
-
+do_action('very_end');
 ?>
